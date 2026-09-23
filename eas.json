@@ -7,19 +7,19 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
-        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     }
   },
