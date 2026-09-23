@@ -15,7 +15,7 @@
       "backgroundColor": "#1A56DB"
     },
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.josephhurley.launchswift",
       "buildNumber": "1",
       "infoPlist": {
