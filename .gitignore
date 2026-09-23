@@ -32,7 +32,6 @@ yarn-error.*
 android/
 ios/
 
-package-lock.json
 yarn.lock
 # Python
 .venv/
@@ -70,3 +69,5 @@ htmlcov/
 .cache/
 build/
 next-env.d.ts
+
+package-lock.json
