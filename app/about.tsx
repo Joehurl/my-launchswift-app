@@ -6,12 +6,15 @@ import {
   StyleSheet,
   Modal,
   TouchableOpacity,
-  Pressable,
+  Image,
 } from 'react-native';
+import type { ImageSourcePropType } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Rocket, ChevronRight, X } from 'lucide-react-native';
+import { ChevronRight, X } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+
+const logoSource: ImageSourcePropType = require('@/assets/images/84c8bbe6-9684-499d-a21b-af66c880f25e.jpeg');
 
 const COPYRIGHT_TEXT = `COPYRIGHT NOTICE
 
@@ -215,18 +218,13 @@ export default function AboutScreen() {
       >
         {/* App Icon */}
         <View style={styles.heroSection}>
-          <View style={styles.appIcon}>
-            <Rocket size={36} color={COLORS.primary} strokeWidth={1.5} />
-          </View>
+          <Image
+            source={logoSource}
+            style={styles.appIcon}
+            resizeMode="cover"
+          />
           <Text style={styles.appName}>LaunchSwift</Text>
           <Text style={styles.version}>Version 1.0.0</Text>
-          {__DEV__ && (
-            <View style={styles.devNotice}>
-              <Text style={styles.devNoticeText}>
-                Replace assets/images/newly.png with your LaunchSwift icon before submitting to the App Store.
-              </Text>
-            </View>
-          )}
         </View>
 
         {/* About */}
@@ -306,13 +304,9 @@ const styles = StyleSheet.create({
   appIcon: {
     width: 88,
     height: 88,
-    borderRadius: 22,
-    backgroundColor: COLORS.primaryMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.primary + '30',
+    borderRadius: 20,
     marginBottom: 4,
+    overflow: 'hidden',
   },
   appName: {
     fontSize: 26,
@@ -324,22 +318,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textSecondary,
   },
-  devNotice: {
-    marginTop: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: COLORS.warningMuted,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: COLORS.warning + '40',
-    maxWidth: 300,
-  },
-  devNoticeText: {
-    fontSize: 12,
-    color: COLORS.warning,
-    textAlign: 'center',
-    lineHeight: 18,
-  },
+
   section: {
     gap: 10,
   },

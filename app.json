@@ -5,14 +5,14 @@
     "version": "1.0.0",
     "description": "LaunchSwift \u2014 The ultimate App Store submission assistant. AI-powered guidance for every step of getting your app approved.",
     "orientation": "portrait",
-    "icon": "./assets/images/newly.png",
+    "icon": "./assets/images/84c8bbe6-9684-499d-a21b-af66c880f25e.jpeg",
     "userInterfaceStyle": "automatic",
     "jsEngine": "hermes",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/newly.png",
+      "image": "./assets/images/84c8bbe6-9684-499d-a21b-af66c880f25e.jpeg",
       "resizeMode": "contain",
-      "backgroundColor": "#0D1117"
+      "backgroundColor": "#1A56DB"
     },
     "ios": {
       "supportsTablet": true,
@@ -24,14 +24,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/newly.png",
-        "backgroundColor": "#0D1117"
+        "foregroundImage": "./assets/images/84c8bbe6-9684-499d-a21b-af66c880f25e.jpeg",
+        "backgroundColor": "#1A56DB"
       },
       "package": "com.josephhurley.launchswift",
       "versionCode": 1
     },
     "web": {
-      "favicon": "./assets/images/newly.png",
+      "favicon": "./assets/images/84c8bbe6-9684-499d-a21b-af66c880f25e.jpeg",
       "bundler": "metro"
     },
     "plugins": [
