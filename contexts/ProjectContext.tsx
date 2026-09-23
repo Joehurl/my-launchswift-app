@@ -2,6 +2,8 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const STORAGE_KEY = '@launchswift_projects';
+const SEED_VERSION_KEY = '@launchswift_seed_version';
+const CURRENT_SEED_VERSION = 2;
 
 export type SectionStatus = 'empty' | 'in_progress' | 'complete';
 
@@ -37,20 +39,54 @@ export interface AppProject {
 
 const defaultSection = (): SectionData => ({ status: 'empty', data: {} });
 
+const LAUNCHSWIFT_DESCRIPTION = `Stop guessing. Start launching.
+
+LaunchSwift is the AI-powered App Store submission assistant that guides indie developers through every step of getting their app approved — from metadata to TestFlight.
+
+EVERYTHING IN ONE PLACE
+• AI-assisted descriptions, keywords & promotional text
+• Screenshot requirements for every device size
+• In-app purchase & subscription setup guides
+• TestFlight beta testing configuration
+• Age rating calculator
+• Final submission checklist
+
+AI THAT ACTUALLY HELPS
+Ask LaunchSwift's built-in AI anything about the submission process. Get instant, expert answers on metadata strategy, screenshot best practices, review guidelines, pricing psychology, and more.
+
+TRACK YOUR PROGRESS
+See exactly which sections are complete, in progress, or need attention. Never lose track of where you are in the submission process.
+
+BUILT FOR INDIE DEVELOPERS
+Whether you're submitting your first app or your fiftieth, LaunchSwift cuts through the complexity and gets you to launch faster.
+
+© 2025 Joseph Hurley. All rights reserved.`;
+
 const SAMPLE_PROJECT: AppProject = {
   id: 'sample-1',
-  name: 'PhotoEdit Pro',
-  bundleId: 'com.example.photoeditpro',
+  name: 'LaunchSwift',
+  bundleId: 'com.josephhurley.launchswift',
   iconColor: '#2F81F7',
   platform: 'ios',
   createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
   updatedAt: new Date(Date.now() - 3600000).toISOString(),
   sections: {
     credentials: { status: 'complete', data: { appleId: 'dev@example.com', teamId: 'ABC123XYZ' }, completedAt: new Date(Date.now() - 86400000 * 2).toISOString() },
-    appInfo: { status: 'complete', data: { appName: 'PhotoEdit Pro', subtitle: 'Professional Photo Editor', bundleId: 'com.example.photoeditpro', sku: 'com.example.photoeditpro', primaryLanguage: 'English (U.S.)', category: 'Photo & Video' }, completedAt: new Date(Date.now() - 86400000).toISOString() },
-    metadata: { status: 'in_progress', data: { description: 'Transform your photos with professional-grade editing tools...', keywords: 'photo editor, filters, retouch, camera' } },
+    appInfo: { status: 'complete', data: { appName: 'LaunchSwift', subtitle: 'App Store Submission Assistant', bundleId: 'com.josephhurley.launchswift', sku: 'com.josephhurley.launchswift', primaryLanguage: 'English (U.S.)', category: 'Developer Tools' }, completedAt: new Date(Date.now() - 86400000).toISOString() },
+    metadata: {
+      status: 'complete',
+      data: {
+        description: LAUNCHSWIFT_DESCRIPTION,
+        promoText: '🚀 The fastest way to get your app approved on the App Store. AI-powered guidance for every step of the submission process.',
+        keywords: 'app store,submission,aso,indie dev,testflight,app review,keywords,metadata,developer,launch',
+        whatsNew: 'Version 1.0 — Initial release. Full App Store submission workflow, AI chat assistant, TestFlight setup, in-app purchase guides, and final submission checklist.',
+        supportUrl: 'https://launchswift.app/support',
+        marketingUrl: 'https://launchswift.app',
+      },
+      completedAt: new Date(Date.now() - 3600000).toISOString(),
+    },
     screenshots: defaultSection(),
-    pricing: { status: 'complete', data: { priceTier: 'paid', price: '$4.99', releaseType: 'automatic', allCountries: true }, completedAt: new Date(Date.now() - 86400000).toISOString() },
+    pricing: { status: 'complete', data: { priceTier: 'free', price: 'Free', releaseType: 'automatic', allCountries: true }, completedAt: new Date(Date.now() - 86400000).toISOString() },
     reviewInfo: defaultSection(),
     privacy: defaultSection(),
     iap: defaultSection(),
@@ -84,14 +120,37 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const loadProjects = async () => {
     console.log('[ProjectContext] Loading projects from AsyncStorage');
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const [stored, seedVersionRaw] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEY),
+        AsyncStorage.getItem(SEED_VERSION_KEY),
+      ]);
+      const seedVersion = seedVersionRaw ? parseInt(seedVersionRaw, 10) : 0;
+
       if (stored) {
         const parsed = JSON.parse(stored) as AppProject[];
-        console.log(`[ProjectContext] Loaded ${parsed.length} projects`);
-        setProjects(parsed);
+        console.log(`[ProjectContext] Loaded ${parsed.length} projects (seed v${seedVersion})`);
+
+        // Migrate sample project if seed version is outdated
+        if (seedVersion < CURRENT_SEED_VERSION) {
+          console.log('[ProjectContext] Seed version outdated, updating sample project');
+          const hasSample = parsed.some(p => p.id === 'sample-1');
+          const updated = hasSample
+            ? parsed.map(p => (p.id === 'sample-1' ? SAMPLE_PROJECT : p))
+            : [SAMPLE_PROJECT, ...parsed];
+          await Promise.all([
+            AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated)),
+            AsyncStorage.setItem(SEED_VERSION_KEY, String(CURRENT_SEED_VERSION)),
+          ]);
+          setProjects(updated);
+        } else {
+          setProjects(parsed);
+        }
       } else {
         console.log('[ProjectContext] No projects found, seeding sample project');
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([SAMPLE_PROJECT]));
+        await Promise.all([
+          AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([SAMPLE_PROJECT])),
+          AsyncStorage.setItem(SEED_VERSION_KEY, String(CURRENT_SEED_VERSION)),
+        ]);
         setProjects([SAMPLE_PROJECT]);
       }
     } catch (e) {

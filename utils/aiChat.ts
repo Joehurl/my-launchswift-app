@@ -39,6 +39,14 @@ const METADATA_RESPONSES: ResponseEntry[] = [
     keywords: ['subtitle', 'sub title'],
     response: `Your subtitle (30 characters max) appears directly below your app name in search results and is fully indexed for search — treat it like a second title.\n\n**Best practices:**\n• Include 1–2 high-value keywords not in your title\n• Describe the core benefit, not a feature\n• Avoid generic phrases like "The best app for..."\n\n**Examples:**\n• "Photo Editor & Filter Studio" (keyword-rich)\n• "AI-Powered Portrait Retouching" (benefit + keyword)\n• "Edit RAW Photos Like a Pro" (aspirational + keyword)\n\nThe subtitle is indexed by Apple's search algorithm, so treat every character as keyword real estate.`,
   },
+  {
+    keywords: ['generate', 'write for me', 'write my', 'create my', 'my app', 'my description', 'generate description', 'generate keywords', 'generate copy'],
+    response: `I can generate a complete set of App Store copy for your app! Here's what I'll create:\n\n✍️ **App Description** — A conversion-optimized description with hook, feature bullets, and CTA\n🏷️ **Keywords** — 100 characters of high-value, non-overlapping search terms\n📣 **Promotional Text** — 170-character changeable text for your store page\n🆕 **What's New** — Version release notes\n\nTap the **"✨ Generate All Copy"** button above the description field to generate everything for your app instantly. The AI will personalize it based on your app name and category.\n\nAfter generating, review and customize each field — the generated copy is a strong starting point, but adding your specific features and unique value props will make it even better.`,
+  },
+  {
+    keywords: ['generate subtitle', 'write subtitle', 'subtitle ideas', 'subtitle examples'],
+    response: `Your subtitle (30 chars max) is prime keyword real estate — Apple indexes it for search.\n\n**Formula that works:**\n[Benefit] + [Keyword] = great subtitle\n\n**Examples by category:**\n• Productivity: "Tasks, Focus & Time Tracker"\n• Fitness: "Workout & Habit Tracker"\n• Finance: "Budget & Expense Manager"\n• Social: "Connect & Share with Friends"\n• Games: "Puzzle Adventure & Brain Game"\n\n**For your app:** Think about the #1 thing your user gets from your app, then add 1-2 searchable keywords. Keep it under 30 characters — every character counts.`,
+  },
 ];
 
 const SCREENSHOTS_RESPONSES: ResponseEntry[] = [
@@ -325,6 +333,87 @@ export function getWelcomeMessage(context: ChatContext): string {
     return `Hi! I'm your App Store submission expert. I can help you with metadata, screenshots, pricing, review guidelines, TestFlight, in-app purchases, and anything else you need to get your app approved.\n\nWhat would you like to know?`;
   }
   return `Hi! I'm here to help with your **${sectionName}** section${context.projectName ? ` for ${context.projectName}` : ''}.\n\nAsk me anything — from best practices to specific requirements. What would you like to know?`;
+}
+
+// ─── App Store copy generator ─────────────────────────────────────────────────
+
+export interface GeneratedAppStoreCopy {
+  description: string;
+  promotionalText: string;
+  keywords: string;
+  whatsNew: string;
+  subtitle: string;
+}
+
+export function generateAppStoreCopy(context: ChatContext): GeneratedAppStoreCopy {
+  const appName = context.projectName || 'Your App';
+  const category = (context.appCategory || '').toLowerCase();
+  console.log(`[AIChat] Generating App Store copy for "${appName}", category: "${category}"`);
+
+  const isProductivity = category.includes('productivity') || category.includes('business') || category.includes('utilities') || category.includes('developer');
+  const isGame = category.includes('game');
+  const isHealth = category.includes('health') || category.includes('fitness') || category.includes('medical');
+  const isSocial = category.includes('social') || category.includes('lifestyle');
+  const isUtility = category.includes('utility') || category.includes('tool') || category.includes('reference');
+
+  if (isGame) {
+    return {
+      description: `Get ready for the most addictive game you'll play this year.\n\n${appName} combines exciting gameplay with stunning visuals and endless replayability.\n\nFEATURES\n• Hundreds of levels\n• Daily challenges\n• Leaderboards & achievements\n• Play offline, anytime\n\nDownload free — your next obsession awaits.`,
+      promotionalText: `🎮 New levels added weekly! ${appName} — the game everyone's talking about.`,
+      keywords: 'game,puzzle,casual,fun,addictive,levels,challenge,arcade,offline,free',
+      whatsNew: `Version 1.0 — Initial release of ${appName}. New levels, challenges, and achievements await. Download and start playing today!`,
+      subtitle: 'Puzzle Adventure & Brain Game',
+    };
+  }
+
+  if (isHealth) {
+    return {
+      description: `Your health journey starts here.\n\n${appName} makes it easy to build healthy habits, track your progress, and reach your goals — one day at a time.\n\nTRACK EVERYTHING\n• Workouts & activity\n• Nutrition & hydration\n• Sleep & recovery\n• Progress over time\n\nDownload free and start your transformation today.`,
+      promotionalText: `💪 Start your health journey today. ${appName} — your personal wellness companion.`,
+      keywords: 'health,fitness,workout,exercise,nutrition,habits,wellness,tracker,calories,training',
+      whatsNew: `Version 1.0 — Initial release of ${appName}. Full health tracking, habit builder, and progress dashboard. Your transformation starts now.`,
+      subtitle: 'Workout & Habit Tracker',
+    };
+  }
+
+  if (isSocial) {
+    return {
+      description: `Connect with people who share your passion.\n\n${appName} is the community app where enthusiasts discover, share, and connect.\n\nDISCOVER\n• Trending content from your community\n• People who share your interests\n• Events and meetups near you\n\nJoin thousands of users already on ${appName}.`,
+      promotionalText: `🌟 Join the community! ${appName} — where enthusiasts connect.`,
+      keywords: 'social,community,connect,share,discover,lifestyle,friends,network,feed,trending',
+      whatsNew: `Version 1.0 — Initial release of ${appName}. Discover your community, share your passion, and connect with like-minded people.`,
+      subtitle: 'Connect & Share with Friends',
+    };
+  }
+
+  if (isProductivity) {
+    return {
+      description: `Work smarter, not harder.\n\n${appName} is the productivity app that helps you get more done in less time — without the complexity.\n\nKEY FEATURES\n• Streamlined workflow management\n• Smart reminders & scheduling\n• Progress tracking & insights\n• Works offline, syncs everywhere\n\nSIMPLE BY DESIGN\n${appName} strips away everything you don't need and focuses on what matters: getting things done.\n\nDownload free and start being more productive today.`,
+      promotionalText: `✨ Get more done every day. ${appName} — the productivity app that actually works.`,
+      keywords: 'productivity,tasks,organize,focus,efficiency,planner,schedule,workflow,gtd,todo',
+      whatsNew: `Version 1.0 — Initial release of ${appName}. Full workflow management, smart reminders, and progress tracking. Start getting more done today.`,
+      subtitle: 'Tasks, Focus & Time Tracker',
+    };
+  }
+
+  if (isUtility) {
+    return {
+      description: `The tool you didn't know you needed.\n\n${appName} does one thing and does it perfectly.\n\nWHY ${appName}?\n• Fast and lightweight\n• No account required\n• Works offline\n• Privacy-first — your data stays on your device\n\nDownload free. No ads, no subscriptions, no nonsense.`,
+      promotionalText: `⚡ The fastest tool on the App Store. ${appName} — download free.`,
+      keywords: 'utility,tool,app,fast,simple,offline,privacy,free,lightweight,essential',
+      whatsNew: `Version 1.0 — Initial release of ${appName}. Fast, lightweight, and privacy-first. Everything you need, nothing you don't.`,
+      subtitle: 'Fast, Simple & Offline',
+    };
+  }
+
+  // Default
+  return {
+    description: `Introducing ${appName}.\n\n${appName} is the app built for people who want a better way.\n\nKEY FEATURES\n• Powerful core functionality\n• Beautiful, intuitive design\n• Fast and reliable performance\n• Regular updates with new features\n\nWhy ${appName}?\n${appName} was built for people who expect more from their apps. Simple, powerful, and designed to deliver results.\n\nDownload free today.`,
+    promotionalText: `✨ ${appName} — a better way to get things done. Download free today.`,
+    keywords: 'app,mobile,ios,iphone,free,new,best,top,essential,must-have',
+    whatsNew: `Version 1.0 — Initial release of ${appName}. We're just getting started — more features coming soon.`,
+    subtitle: 'Simple, Powerful & Free',
+  };
 }
 
 export function getSuggestedQuestions(section: string): string[] {

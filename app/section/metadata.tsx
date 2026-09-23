@@ -4,8 +4,6 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Alert,
-  TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -17,32 +15,9 @@ import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
 import { AIChatSheet } from '@/components/AIChatSheet';
 import { Toast, useToast } from '@/components/Toast';
+import { generateAppStoreCopy } from '@/utils/aiChat';
 
-const MOCK_DESCRIPTION = `Transform your photos into stunning masterpieces with PhotoEdit Pro — the most powerful photo editing app for iPhone.
 
-Whether you're a professional photographer or just getting started, PhotoEdit Pro gives you the tools to create breathtaking images. With over 200 filters, advanced retouching tools, and a non-destructive editing workflow, your creativity has no limits.
-
-KEY FEATURES:
-• Professional-grade editing tools: curves, levels, HSL, and more
-• 200+ handcrafted filters inspired by film photography
-• Advanced portrait retouching with AI-powered skin smoothing
-• RAW file support for maximum image quality
-• Batch editing to process multiple photos at once
-• Seamless iCloud sync across all your devices
-
-Whether you're editing portraits, landscapes, or street photography, PhotoEdit Pro has everything you need to take your images to the next level.`;
-
-const MOCK_WHATS_NEW = `Version 2.0 brings a completely redesigned editing interface with faster performance and new creative tools:
-
-• New: AI-powered sky replacement
-• New: Advanced color grading with LUT support  
-• Improved: 3x faster export speeds
-• Fixed: Stability improvements for iPhone 15 Pro
-• Fixed: RAW import issues with certain camera models`;
-
-const MOCK_PROMO = `The most powerful photo editor for iPhone. Professional tools, stunning filters, zero compromises.`;
-
-const MOCK_KEYWORDS = `photo editor, filters, retouch, camera, RAW, portrait, landscape, vintage, film, professional`;
 
 export default function MetadataScreen() {
   const { projectId } = useLocalSearchParams<{ projectId: string }>();
@@ -60,7 +35,12 @@ export default function MetadataScreen() {
   const [marketingUrl, setMarketingUrl] = useState('');
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [generatingWhatsNew, setGeneratingWhatsNew] = useState(false);
+  const [generatingAll, setGeneratingAll] = useState(false);
+  const [hasGeneratedAll, setHasGeneratedAll] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const projectName = project?.name ?? 'Your App';
+  const appCategory = (project?.sections.appInfo.data?.category as string) ?? '';
 
   useEffect(() => {
     const d = project?.sections.metadata.data;
@@ -75,22 +55,40 @@ export default function MetadataScreen() {
   }, [projectId]);
 
   const handleGenerateDescription = () => {
-    console.log('[Metadata] AI Generate description button pressed');
+    console.log('[Metadata] AI Generate description button pressed for:', projectName);
     setGeneratingDesc(true);
     setTimeout(() => {
-      setDescription(MOCK_DESCRIPTION);
+      const copy = generateAppStoreCopy({ section: 'metadata', projectName, appCategory });
+      setDescription(copy.description);
       setGeneratingDesc(false);
-      console.log('[Metadata] AI description generated (mock)');
+      console.log('[Metadata] AI description generated for:', projectName);
     }, 1500);
   };
 
   const handleGenerateWhatsNew = () => {
-    console.log('[Metadata] AI Generate whats new button pressed');
+    console.log('[Metadata] AI Generate whats new button pressed for:', projectName);
     setGeneratingWhatsNew(true);
     setTimeout(() => {
-      setWhatsNew(MOCK_WHATS_NEW);
+      const copy = generateAppStoreCopy({ section: 'metadata', projectName, appCategory });
+      setWhatsNew(copy.whatsNew);
       setGeneratingWhatsNew(false);
-      console.log('[Metadata] AI whats new generated (mock)');
+      console.log('[Metadata] AI whats new generated for:', projectName);
+    }, 1500);
+  };
+
+  const handleGenerateAllCopy = () => {
+    console.log('[Metadata] Generate All Copy button pressed for:', projectName, 'category:', appCategory);
+    setGeneratingAll(true);
+    setTimeout(() => {
+      const copy = generateAppStoreCopy({ section: 'metadata', projectName, appCategory });
+      setDescription(copy.description);
+      setPromoText(copy.promotionalText);
+      setKeywords(copy.keywords);
+      setWhatsNew(copy.whatsNew);
+      setGeneratingAll(false);
+      setHasGeneratedAll(true);
+      console.log('[Metadata] All copy generated for:', projectName);
+      showToast('✓ Copy generated! Review and customize each field.');
     }, 1500);
   };
 
@@ -124,6 +122,22 @@ export default function MetadataScreen() {
       >
 
         <SectionHeader icon="📝" title="Description & Metadata" subtitle="App Store listing copy and keywords" />
+
+        <View style={styles.generateAllContainer}>
+          <AnimatedPressable
+            onPress={handleGenerateAllCopy}
+            disabled={generatingAll}
+            style={styles.generateAllButton}
+          >
+            {generatingAll
+              ? <ActivityIndicator size="small" color={COLORS.primary} />
+              : <Sparkles size={18} color={COLORS.primary} strokeWidth={2} />
+            }
+            <Text style={styles.generateAllText}>
+              {generatingAll ? 'Generating...' : hasGeneratedAll ? `✓ Regenerate Copy` : `Generate All Copy for ${projectName}`}
+            </Text>
+          </AnimatedPressable>
+        </View>
 
         <View style={styles.form}>
           {/* Description */}
@@ -265,6 +279,20 @@ export default function MetadataScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingBottom: 40, gap: 0 },
+  generateAllContainer: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 0 },
+  generateAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: COLORS.primaryMuted,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginBottom: 4,
+  },
+  generateAllText: { color: COLORS.primary, fontSize: 15, fontWeight: '600' },
   form: { padding: 20, gap: 20 },
   aiFieldContainer: { gap: 8 },
   aiFieldHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
