@@ -6,6 +6,7 @@ import { BlurView } from 'expo-blur';
 import { Layers, BookOpen, MessageSquare } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { Stack } from 'expo-router';
+import { useSubscriptionGuard } from "@/hooks/useSubscriptionGuard";
 
 const TABS = [
   { name: '(projects)', route: '/(tabs)/(projects)', label: 'Projects', Icon: Layers },
@@ -49,6 +50,8 @@ function LaunchSwiftTabBar() {
 }
 
 export default function TabLayout() {
+  useSubscriptionGuard();
+
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Stack screenOptions={{ headerShown: false, animation: 'none' }}>

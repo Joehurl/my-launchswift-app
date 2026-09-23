@@ -9,12 +9,15 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus, Rocket } from 'lucide-react-native';
+import { Plus, Rocket, Zap } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { ProjectCard } from '@/components/ProjectCard';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+
+const FREE_PROJECT_LIMIT = 1;
 
 function SkeletonCard() {
   const opacity = useRef(new Animated.Value(0.3)).current;
@@ -70,9 +73,28 @@ export default function ProjectsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { projects, loading } = useProjects();
+  const { isSubscribed } = useSubscription();
 
   const handleAddProject = () => {
-    console.log('[Projects] Add project button pressed');
+    console.log('[Projects] Add project button pressed, project count:', projects.length, 'isSubscribed:', isSubscribed);
+    if (!isSubscribed && projects.length >= FREE_PROJECT_LIMIT) {
+      console.log('[Projects] Free limit reached — prompting upgrade');
+      Alert.alert(
+        'Upgrade to Pro',
+        `Free accounts are limited to ${FREE_PROJECT_LIMIT} project. Upgrade to LaunchSwift Pro to manage unlimited apps.`,
+        [
+          { text: 'Not now', style: 'cancel' },
+          {
+            text: 'Go Pro',
+            onPress: () => {
+              console.log('[Projects] Upgrade alert: Go Pro pressed');
+              router.push('/paywall');
+            },
+          },
+        ]
+      );
+      return;
+    }
     router.push('/new-project');
   };
 
@@ -81,6 +103,13 @@ export default function ProjectsScreen() {
     router.push(`/project/${id}`);
   };
 
+  const handleGoProPress = () => {
+    console.log('[Projects] Go Pro header button pressed');
+    router.push('/paywall');
+  };
+
+  const showGoPro = !isSubscribed;
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.headerRow}>
@@ -88,10 +117,40 @@ export default function ProjectsScreen() {
           <Text style={styles.headerTitle}>LaunchSwift</Text>
           <Text style={styles.headerSubtitle}>App Store submission assistant</Text>
         </View>
-        <AnimatedPressable onPress={handleAddProject} style={styles.addButton}>
-          <Plus size={20} color="#fff" strokeWidth={2.5} />
-        </AnimatedPressable>
+        <View style={styles.headerActions}>
+          {showGoPro && (
+            <TouchableOpacity
+              onPress={handleGoProPress}
+              style={styles.goProButton}
+              activeOpacity={0.8}
+            >
+              <Zap size={13} color="#fff" strokeWidth={2.5} />
+              <Text style={styles.goProButtonText}>Go Pro</Text>
+            </TouchableOpacity>
+          )}
+          <AnimatedPressable onPress={handleAddProject} style={styles.addButton}>
+            <Plus size={20} color="#fff" strokeWidth={2.5} />
+          </AnimatedPressable>
+        </View>
       </View>
+
+      {/* Free tier limit banner */}
+      {!isSubscribed && projects.length >= FREE_PROJECT_LIMIT && !loading && (
+        <TouchableOpacity
+          style={styles.limitBanner}
+          onPress={() => {
+            console.log('[Projects] Limit banner pressed');
+            router.push('/paywall');
+          }}
+          activeOpacity={0.8}
+        >
+          <Zap size={14} color="#2F81F7" strokeWidth={2.5} />
+          <Text style={styles.limitBannerText}>
+            Free plan: 1 project limit.{' '}
+            <Text style={styles.limitBannerLink}>Upgrade to Pro →</Text>
+          </Text>
+        </TouchableOpacity>
+      )}
 
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
@@ -151,13 +210,55 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: 2,
   },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  goProButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  goProButtonText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#fff',
+    letterSpacing: -0.1,
+  },
   addButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.surfaceElevated,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  limitBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 20,
+    marginBottom: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: COLORS.primaryMuted,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(47,129,247,0.2)',
+  },
+  limitBannerText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    flex: 1,
+  },
+  limitBannerLink: {
+    color: COLORS.primary,
+    fontWeight: '600',
   },
   scrollContent: {
     paddingHorizontal: 20,

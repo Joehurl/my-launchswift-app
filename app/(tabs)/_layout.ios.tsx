@@ -1,7 +1,10 @@
 import React from 'react';
 import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 
 export default function TabLayout() {
+  useSubscriptionGuard();
+
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="(projects)">
