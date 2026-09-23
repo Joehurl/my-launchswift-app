@@ -411,6 +411,19 @@ export default function PaywallScreen() {
                   Manage Subscription
                 </Text>
               </Text>
+
+              {__DEV__ && (
+                <TouchableOpacity
+                  style={styles.devSkipButton}
+                  onPress={async () => {
+                    console.log("[Paywall] Dev: Skip Paywall pressed");
+                    await mockNativePurchase();
+                    router.replace("/(tabs)/(projects)");
+                  }}
+                >
+                  <Text style={styles.devSkipButtonText}>⚙️ Dev: Skip Paywall</Text>
+                </TouchableOpacity>
+              )}
             </>
           )}
         </View>
@@ -880,5 +893,18 @@ const styles = StyleSheet.create({
   legalLink: {
     color: "#2F81F7",
     textDecorationLine: "underline",
+  },
+  devSkipButton: {
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(247,201,72,0.3)",
+    borderStyle: "dashed",
+    borderRadius: 10,
+    marginTop: 4,
+  },
+  devSkipButtonText: {
+    fontSize: 13,
+    color: "#F7C948",
   },
 });
