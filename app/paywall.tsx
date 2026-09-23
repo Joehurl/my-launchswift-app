@@ -16,6 +16,7 @@ import {
   Alert,
   Platform,
   Dimensions,
+  Linking,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -136,6 +137,11 @@ export default function PaywallScreen() {
     router.replace("/(tabs)/(projects)");
   };
 
+  const handleManageSubscription = () => {
+    console.log("[Paywall] Manage Subscription pressed");
+    Linking.openURL("https://apps.apple.com/account/subscriptions");
+  };
+
   const handleWebMockPurchase = async () => {
     if (!selectedPackage) return;
     console.log("[Paywall] Web mock purchase initiated");
@@ -188,6 +194,9 @@ export default function PaywallScreen() {
 
             <TouchableOpacity style={styles.exploreButton} onPress={handleClose}>
               <Text style={styles.exploreButtonText}>Start Building</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.manageButton} onPress={handleManageSubscription}>
+              <Text style={styles.manageButtonText}>Manage Subscription</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -395,9 +404,12 @@ export default function PaywallScreen() {
 
               <Text style={styles.legalText}>
                 Payment will be charged to your{" "}
-                {Platform.OS === "ios" ? "Apple ID" : "Google Play"} account.
+                {Platform.OS === "ios" ? "Apple ID" : "Google Play"} account at $4.99/month.
                 Subscription automatically renews unless canceled at least 24 hours
-                before the end of the current period.
+                before the end of the current period.{" "}
+                <Text style={styles.legalLink} onPress={handleManageSubscription}>
+                  Manage Subscription
+                </Text>
               </Text>
             </>
           )}
@@ -854,5 +866,19 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: "700",
     letterSpacing: -0.2,
+  },
+  manageButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  manageButtonText: {
+    fontSize: 14,
+    color: "#8B949E",
+    textDecorationLine: "underline",
+  },
+  legalLink: {
+    color: "#2F81F7",
+    textDecorationLine: "underline",
   },
 });
