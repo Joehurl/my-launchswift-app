@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, Switch } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Sparkles } from 'lucide-react-native';
+import { Sparkles, Info, ShoppingCart } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
@@ -17,11 +17,11 @@ const DATA_TYPES = [
   { key: 'usageData', label: 'Usage Data', desc: 'App interactions and feature usage' },
   { key: 'diagnostics', label: 'Diagnostics', desc: 'Crash logs and performance data' },
   { key: 'identifiers', label: 'Identifiers', desc: 'Device ID, advertising ID' },
-  { key: 'purchases', label: 'Purchases', desc: 'Purchase history' },
+  { key: 'purchases', label: 'Purchases', desc: 'Purchase history & subscription status (RevenueCat)' },
   { key: 'browsing', label: 'Browsing History', desc: 'Web browsing history' },
 ];
 
-const PURPOSES = ['App Functionality', 'Analytics', 'Developer\'s Advertising', 'Third-Party Advertising', 'Product Personalization', 'Other Purposes'];
+const PURPOSES = ['App Functionality', 'Analytics', "Developer's Advertising", 'Third-Party Advertising', 'Product Personalization', 'Other Purposes'];
 
 export default function PrivacyScreen() {
   const { projectId } = useLocalSearchParams<{ projectId: string }>();
@@ -48,6 +48,14 @@ export default function PrivacyScreen() {
   const toggleType = (key: string) => {
     console.log(`[Privacy] Data type toggled: ${key}`);
     setEnabledTypes(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleUseTemplate = () => {
+    console.log('[Privacy] Use LaunchSwift Template pressed');
+    setPrivacyUrl('https://josephhurley.com/launchswift/privacy');
+    setCollectsData(false);
+    setEnabledTypes({});
+    showToast('Template applied — enable Purchases if using RevenueCat');
   };
 
   const handleSave = async () => {
@@ -79,6 +87,25 @@ export default function PrivacyScreen() {
         keyboardShouldPersistTaps="handled"
       >
         <SectionHeader icon="🔒" title="Privacy Policy" subtitle="Required privacy information for App Store submission" />
+
+        {/* LaunchSwift Privacy Template card */}
+        <View style={styles.templateCard}>
+          <View style={styles.templateCardHeader}>
+            <View style={styles.templateIconWrap}>
+              <Info size={16} color={COLORS.primary} strokeWidth={2} />
+            </View>
+            <Text style={styles.templateCardTitle}>LaunchSwift Privacy Template</Text>
+          </View>
+          <Text style={styles.templateCardBody}>
+            Based on LaunchSwift's own privacy setup, here's a recommended starting point for apps with no backend and RevenueCat subscriptions.
+          </Text>
+          <Text style={styles.templateCardNote}>
+            If you use RevenueCat, enable the "Purchases" data type below after applying.
+          </Text>
+          <AnimatedPressable onPress={handleUseTemplate} style={styles.templateButton}>
+            <Text style={styles.templateButtonText}>Use LaunchSwift Template</Text>
+          </AnimatedPressable>
+        </View>
 
         <View style={styles.form}>
           <FormField
@@ -118,8 +145,21 @@ export default function PrivacyScreen() {
                     {i > 0 && <View style={styles.divider} />}
                     <View style={styles.dataTypeRow}>
                       <View style={styles.dataTypeText}>
-                        <Text style={styles.dataTypeLabel}>{type.label}</Text>
+                        <View style={styles.dataTypeLabelRow}>
+                          {type.key === 'purchases' && (
+                            <ShoppingCart size={13} color={COLORS.primary} strokeWidth={2} style={styles.purchasesIcon} />
+                          )}
+                          <Text style={styles.dataTypeLabel}>{type.label}</Text>
+                        </View>
                         <Text style={styles.dataTypeDesc}>{type.desc}</Text>
+                        {type.key === 'purchases' && (
+                          <View style={styles.purchasesNote}>
+                            <Info size={11} color={COLORS.textTertiary} strokeWidth={2} />
+                            <Text style={styles.purchasesNoteText}>
+                              Required if you use RevenueCat, StoreKit, or any payment processor.
+                            </Text>
+                          </View>
+                        )}
                       </View>
                       <Switch
                         value={!!enabledTypes[type.key]}
@@ -145,6 +185,33 @@ export default function PrivacyScreen() {
               </View>
             </View>
           )}
+        </View>
+
+        {/* App Store Privacy Nutrition Label info card */}
+        <View style={styles.nutritionCard}>
+          <View style={styles.nutritionCardHeader}>
+            <View style={styles.nutritionIconWrap}>
+              <Info size={16} color={COLORS.warning} strokeWidth={2} />
+            </View>
+            <Text style={styles.nutritionCardTitle}>App Store Privacy Nutrition Label</Text>
+          </View>
+          <Text style={styles.nutritionCardBody}>
+            Apple requires you to declare all data types your app collects in App Store Connect under "App Privacy".
+          </Text>
+          <View style={styles.nutritionRow}>
+            <Text style={styles.nutritionBullet}>•</Text>
+            <Text style={styles.nutritionRowText}>
+              <Text style={styles.nutritionBold}>RevenueCat only, no backend:</Text>
+              {' '}Select "Purchases" → "App Functionality" only.
+            </Text>
+          </View>
+          <View style={styles.nutritionRow}>
+            <Text style={styles.nutritionBullet}>•</Text>
+            <Text style={styles.nutritionRowText}>
+              <Text style={styles.nutritionBold}>Everything else:</Text>
+              {' '}Not Collected.
+            </Text>
+          </View>
         </View>
 
         <AnimatedPressable
@@ -185,6 +252,41 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingBottom: 40, gap: 0 },
   form: { padding: 20, gap: 20 },
+
+  // Template card
+  templateCard: {
+    marginHorizontal: 20,
+    marginTop: 16,
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
+    padding: 16,
+    gap: 10,
+  },
+  templateCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  templateIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: COLORS.primaryMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  templateCardTitle: { fontSize: 14, fontWeight: '700', color: COLORS.text },
+  templateCardBody: { fontSize: 13, color: COLORS.textSecondary, lineHeight: 19 },
+  templateCardNote: { fontSize: 12, color: COLORS.primary, lineHeight: 17 },
+  templateButton: {
+    backgroundColor: COLORS.primaryMuted,
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.primary + '40',
+  },
+  templateButtonText: { fontSize: 14, fontWeight: '700', color: COLORS.primary },
+
+  // Form fields
   toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: COLORS.surface, borderRadius: 12, padding: 14, borderWidth: 1, borderColor: COLORS.border },
   toggleText: { flex: 1, gap: 2 },
   toggleLabel: { fontSize: 15, fontWeight: '600', color: COLORS.text },
@@ -194,17 +296,53 @@ const styles = StyleSheet.create({
   dataTypesList: { backgroundColor: COLORS.surface, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
   dataTypeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 14 },
   dataTypeText: { flex: 1, gap: 2 },
+  dataTypeLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  purchasesIcon: { marginTop: 1 },
   dataTypeLabel: { fontSize: 14, fontWeight: '600', color: COLORS.text },
   dataTypeDesc: { fontSize: 12, color: COLORS.textSecondary },
+  purchasesNote: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 },
+  purchasesNoteText: { fontSize: 11, color: COLORS.textTertiary, lineHeight: 15, flex: 1 },
   divider: { height: 1, backgroundColor: COLORS.divider, marginHorizontal: 14 },
   purposeRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, paddingHorizontal: 14, paddingBottom: 12 },
   purposeLabel: { fontSize: 12, color: COLORS.textTertiary, paddingTop: 3 },
   purposeChips: { flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   purposeChip: { backgroundColor: COLORS.primaryMuted, paddingHorizontal: 8, paddingVertical: 3, borderRadius: 5 },
   purposeChipText: { fontSize: 11, color: COLORS.primary, fontWeight: '600' },
+
+  // Nutrition label card
+  nutritionCard: {
+    marginHorizontal: 20,
+    marginTop: 4,
+    marginBottom: 4,
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: COLORS.warning + '30',
+    padding: 16,
+    gap: 10,
+  },
+  nutritionCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  nutritionIconWrap: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: COLORS.warningMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  nutritionCardTitle: { fontSize: 14, fontWeight: '700', color: COLORS.text },
+  nutritionCardBody: { fontSize: 13, color: COLORS.textSecondary, lineHeight: 19 },
+  nutritionRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  nutritionBullet: { fontSize: 13, color: COLORS.textTertiary, lineHeight: 19 },
+  nutritionRowText: { fontSize: 13, color: COLORS.textSecondary, lineHeight: 19, flex: 1 },
+  nutritionBold: { fontWeight: '700', color: COLORS.text },
+
+  // Save button
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+
+  // AI floating button
   aiFloatingButton: {
     position: 'absolute',
     bottom: 24,

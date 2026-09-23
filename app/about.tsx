@@ -80,39 +80,55 @@ Joseph Hurley ("we," "us," or "our") operates LaunchSwift. This Privacy Policy e
 
 1. INFORMATION WE COLLECT
 
-Local Storage Only:
-LaunchSwift stores all project data locally on your device using AsyncStorage. This data never leaves your device and is not transmitted to any server.
+LOCAL STORAGE ONLY (stays on your device):
+LaunchSwift stores all project data locally on your device. This data never leaves your device and is not transmitted to our servers.
 
 Data stored locally includes:
 • App project information you enter (names, bundle IDs, metadata)
-• Section completion status
+• Section completion status and form data
 • AI chat history
 • App Store credentials (stored in iOS Keychain via SecureStore)
+• Onboarding preferences
+
+PURCHASE DATA (RevenueCat):
+LaunchSwift uses RevenueCat to process in-app purchases and subscriptions. RevenueCat may collect:
+• Purchase history and subscription status
+• Device identifiers for purchase verification
+• Transaction receipts from Apple
+
+RevenueCat's privacy policy: https://www.revenuecat.com/privacy
 
 2. INFORMATION WE DO NOT COLLECT
-• We do not collect personal information
-• We do not use analytics or tracking SDKs
-• We do not transmit any data to external servers
-• We do not use advertising networks
-• We do not share data with third parties
+• We do not collect your name, email, or personal information
+• We do not use analytics or behavioral tracking SDKs
+• We do not transmit project data or credentials to any server
+• We do not use advertising networks or sell data
+• We do not share personal data with third parties (except RevenueCat for purchase processing)
 
 3. AI CHAT FEATURE
-The AI chat feature in LaunchSwift uses a local response engine. Your chat messages are processed entirely on-device and are not sent to any external AI service or server.
+The AI chat feature in LaunchSwift uses a built-in local response engine. Your chat messages are processed entirely on-device and are never sent to any external AI service or server.
 
-4. SECURITY
-Your App Store credentials are stored using iOS Keychain (SecureStore), which provides hardware-level encryption. All other data is stored in AsyncStorage on your device.
+4. CREDENTIALS SECURITY
+Your App Store Connect credentials are stored using iOS Keychain (expo-secure-store), which provides hardware-level encryption on your device. We never transmit, access, or store your credentials on any server.
 
-5. CHILDREN'S PRIVACY
-LaunchSwift is not directed to children under 13. We do not knowingly collect information from children.
+5. DATA RETENTION
+All locally stored data remains on your device until you delete the app. Deleting the app removes all locally stored data. Purchase records are managed by Apple and RevenueCat per their respective policies.
 
-6. CHANGES TO THIS POLICY
-We may update this Privacy Policy from time to time. We will notify you of changes by updating the date at the top of this policy.
+6. YOUR RIGHTS
+You may delete all app data by uninstalling LaunchSwift. For purchase-related data, contact RevenueCat at privacy@revenuecat.com.
 
-7. CONTACT US
+7. CHILDREN'S PRIVACY
+LaunchSwift is not directed to children under 13. We do not knowingly collect information from children under 13.
+
+8. CHANGES TO THIS POLICY
+We may update this Privacy Policy from time to time. We will notify you of changes by updating the "Last updated" date at the top of this policy. Continued use of the app after changes constitutes acceptance.
+
+9. CONTACT US
 If you have questions about this Privacy Policy, contact us at:
 launchswift@josephhurley.com
 
-© 2025 Joseph Hurley. All rights reserved.`;
+© 2025 Joseph Hurley. All rights reserved.
+LaunchSwift™ — com.josephhurley.launchswift`;
 
 interface LegalModalProps {
   visible: boolean;
