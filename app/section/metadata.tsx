@@ -15,6 +15,8 @@ import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 const MOCK_DESCRIPTION = `Transform your photos into stunning masterpieces with PhotoEdit Pro — the most powerful photo editing app for iPhone.
 
@@ -47,6 +49,8 @@ export default function MetadataScreen() {
   const router = useRouter();
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
 
   const [description, setDescription] = useState('');
   const [promoText, setPromoText] = useState('');
@@ -101,9 +105,11 @@ export default function MetadataScreen() {
         completedAt: isComplete ? new Date().toISOString() : undefined,
       });
       console.log('[Metadata] Saved, status:', isComplete ? 'complete' : 'in_progress');
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[Metadata] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -116,6 +122,7 @@ export default function MetadataScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+
         <SectionHeader icon="📝" title="Description & Metadata" subtitle="App Store listing copy and keywords" />
 
         <View style={styles.form}>
@@ -226,6 +233,31 @@ export default function MetadataScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save metadata'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      {/* Floating AI Button */}
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[Metadata] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'metadata', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'How do I write a great description?',
+          'What are the best keyword strategies?',
+          'What is promotional text used for?',
+          'How long should my description be?',
+        ]}
+      />
+
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -244,4 +276,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

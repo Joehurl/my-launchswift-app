@@ -9,12 +9,13 @@ import {
   Animated,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Check, X, AlertCircle, ChevronDown, ChevronUp, Rocket } from 'lucide-react-native';
+import { Check, X, AlertCircle, ChevronDown, ChevronUp, Rocket, Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects, AppProject } from '@/contexts/ProjectContext';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
 import { ProgressBar } from '@/components/ProgressBar';
+import { AIChatSheet } from '@/components/AIChatSheet';
 
 const SECTION_INFO: { key: keyof AppProject['sections']; icon: string; label: string; required: boolean }[] = [
   { key: 'credentials', icon: '🔐', label: 'App Store Connect Credentials', required: true },

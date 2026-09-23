@@ -235,6 +235,17 @@ export default function RootLayout() {
                     title: "",
                   }}
                 />
+                <Stack.Screen
+                  name="about"
+                  options={{
+                    headerShown: true,
+                    headerBackButtonDisplayMode: "minimal",
+                    headerStyle: { backgroundColor: "#0D1117" },
+                    headerTintColor: "#2F81F7",
+                    headerShadowVisible: false,
+                    title: "About LaunchSwift",
+                  }}
+                />
               </Stack>
               <SystemBars style="light" />
             </GestureHandlerRootView>

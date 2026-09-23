@@ -103,7 +103,10 @@ export default function ProjectsScreen() {
             <SkeletonCard />
           </>
         ) : projects.length === 0 ? (
-          <EmptyState onAdd={handleAddProject} />
+          <>
+            <EmptyState onAdd={handleAddProject} />
+            <Text style={styles.copyright}>© 2025 Joseph Hurley. All rights reserved.</Text>
+          </>
         ) : (
           <>
             <Text style={styles.sectionLabel}>{projects.length} {projects.length === 1 ? 'project' : 'projects'}</Text>
@@ -115,6 +118,7 @@ export default function ProjectsScreen() {
                 onPress={() => handleProjectPress(project.id, project.name)}
               />
             ))}
+            <Text style={styles.copyright}>© 2025 Joseph Hurley · LaunchSwift™</Text>
           </>
         )}
       </ScrollView>
@@ -236,5 +240,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#fff',
+  },
+  copyright: {
+    color: COLORS.textTertiary,
+    fontSize: 11,
+    textAlign: 'center',
+    paddingVertical: 16,
   },
 });

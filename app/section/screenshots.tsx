@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Plus, Info } from 'lucide-react-native';
+import { Plus, Info, Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 interface DeviceSize {
   label: string;
@@ -81,6 +83,8 @@ export default function ScreenshotsScreen() {
   const router = useRouter();
   const { updateSection } = useProjects();
   const [saving, setSaving] = useState(false);
+  const [aiChatVisible, setAIChatVisible] = useState(false);
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
 
   const handleSave = async () => {
     console.log('[Screenshots] Save button pressed for project:', projectId);
@@ -90,7 +94,8 @@ export default function ScreenshotsScreen() {
         status: 'in_progress',
         data: { uploaded: 0 },
       });
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } finally {
       setSaving(false);
     }
@@ -144,6 +149,29 @@ export default function ScreenshotsScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save screenshots'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[Screenshots] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'screenshots', projectName: 'Your App' }}
+        suggestedQuestions={[
+          'What screenshot sizes do I need?',
+          'Which sizes are required vs optional?',
+          'Tips for high-converting screenshots?',
+          'Do I need an App Preview video?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -197,4 +225,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

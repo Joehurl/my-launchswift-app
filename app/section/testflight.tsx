@@ -9,12 +9,14 @@ import {
   LayoutAnimation,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Plus, Trash2, Users } from 'lucide-react-native';
+import { Plus, Trash2, Users, Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 interface BetaGroup {
   id: string;
@@ -28,6 +30,8 @@ export default function TestFlightScreen() {
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
 
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
   const [betaDescription, setBetaDescription] = useState('');
   const [feedbackEmail, setFeedbackEmail] = useState('');
   const [whatToTest, setWhatToTest] = useState('');
@@ -96,9 +100,11 @@ export default function TestFlightScreen() {
         completedAt: isComplete ? new Date().toISOString() : undefined,
       });
       console.log('[TestFlight] Saved, status:', isComplete ? 'complete' : 'in_progress');
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[TestFlight] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -243,6 +249,29 @@ export default function TestFlightScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save TestFlight setup'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[TestFlight] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'testflight', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'How many testers can I have?',
+          'What should I write in "What to Test"?',
+          'How long does TestFlight review take?',
+          'How do I upload a build?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -271,4 +300,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

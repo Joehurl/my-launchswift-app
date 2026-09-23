@@ -6,9 +6,10 @@ import {
   StyleSheet,
   TextInput,
   Animated,
+  TouchableOpacity,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Search, Clock, ChevronRight } from 'lucide-react-native';
+import { Search, Clock, ChevronRight, Info } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/Colors';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
@@ -84,11 +85,23 @@ export default function GuideScreen() {
     router.push(`/guide/${article.slug}`);
   };
 
+  const handleAboutPress = () => {
+    console.log('[Guide] About button pressed');
+    router.push('/about');
+  };
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.headerSection}>
-        <Text style={styles.headerTitle}>Submission Guide</Text>
-        <Text style={styles.headerSubtitle}>Everything you need to know</Text>
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.headerTitle}>Submission Guide</Text>
+            <Text style={styles.headerSubtitle}>Everything you need to know</Text>
+          </View>
+          <TouchableOpacity onPress={handleAboutPress} style={styles.infoButton} accessibilityLabel="About LaunchSwift">
+            <Info size={20} color={COLORS.textSecondary} strokeWidth={2} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -145,6 +158,7 @@ export default function GuideScreen() {
             />
           ))
         )}
+        <Text style={styles.copyright}>© 2025 Joseph Hurley · LaunchSwift™</Text>
       </ScrollView>
     </View>
   );
@@ -160,6 +174,11 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   headerTitle: {
     fontSize: 28,
     fontWeight: '800',
@@ -170,6 +189,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  infoButton: {
+    padding: 8,
+    borderRadius: 10,
+    backgroundColor: COLORS.surfaceSecondary,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -281,5 +307,11 @@ const styles = StyleSheet.create({
   noResultsText: {
     fontSize: 15,
     color: COLORS.textSecondary,
+  },
+  copyright: {
+    color: COLORS.textTertiary,
+    fontSize: 11,
+    textAlign: 'center',
+    paddingVertical: 16,
   },
 });

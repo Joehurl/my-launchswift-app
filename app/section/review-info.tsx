@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 export default function ReviewInfoScreen() {
   const { projectId } = useLocalSearchParams<{ projectId: string }>();
@@ -17,6 +20,8 @@ export default function ReviewInfoScreen() {
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
   const [demoUsername, setDemoUsername] = useState('');
   const [demoPassword, setDemoPassword] = useState('');
   const [reviewNotes, setReviewNotes] = useState('');
@@ -46,9 +51,11 @@ export default function ReviewInfoScreen() {
         completedAt: isComplete ? new Date().toISOString() : undefined,
       });
       console.log('[ReviewInfo] Saved, status:', isComplete ? 'complete' : 'in_progress');
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[ReviewInfo] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -133,6 +140,28 @@ export default function ReviewInfoScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save review info'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[ReviewInfo] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'review-info', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'Do I need a demo account?',
+          'What should I write in review notes?',
+          'What happens if I don\'t provide credentials?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -149,4 +178,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

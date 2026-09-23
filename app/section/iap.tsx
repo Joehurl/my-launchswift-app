@@ -9,12 +9,14 @@ import {
   LayoutAnimation,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Plus, Trash2, ShoppingCart } from 'lucide-react-native';
+import { Plus, Trash2, ShoppingCart, Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 interface IAP {
   id: string;
@@ -112,6 +114,8 @@ export default function IAPScreen() {
   const router = useRouter();
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
 
   const [iaps, setIaps] = useState<IAP[]>([]);
   const [showForm, setShowForm] = useState(false);
@@ -151,9 +155,11 @@ export default function IAPScreen() {
         data: { iaps },
         completedAt: iaps.length > 0 ? new Date().toISOString() : undefined,
       });
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[IAP] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -227,6 +233,29 @@ export default function IAPScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save IAPs'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[IAP] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'iap', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'Consumable vs non-consumable — what\'s the difference?',
+          'How should I price my IAPs?',
+          'What is a subscription group?',
+          'Do I need a Restore Purchases button?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -278,4 +307,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

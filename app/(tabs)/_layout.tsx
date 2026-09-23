@@ -3,12 +3,13 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
-import { Layers, BookOpen } from 'lucide-react-native';
+import { Layers, BookOpen, MessageSquare } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { Stack } from 'expo-router';
 
 const TABS = [
   { name: '(projects)', route: '/(tabs)/(projects)', label: 'Projects', Icon: Layers },
+  { name: '(chat)', route: '/(tabs)/(chat)', label: 'AI Chat', Icon: MessageSquare },
   { name: '(guide)', route: '/(tabs)/(guide)', label: 'Guide', Icon: BookOpen },
 ];
 
@@ -52,6 +53,7 @@ export default function TabLayout() {
     <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <Stack screenOptions={{ headerShown: false, animation: 'none' }}>
         <Stack.Screen name="(projects)" />
+        <Stack.Screen name="(chat)" />
         <Stack.Screen name="(guide)" />
       </Stack>
       <LaunchSwiftTabBar />
@@ -69,7 +71,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   blurContainer: {
-    width: '80%',
+    width: '88%',
     marginBottom: 16,
     borderRadius: 30,
     overflow: 'hidden',

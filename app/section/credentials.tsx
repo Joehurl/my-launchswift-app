@@ -9,18 +9,22 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { Shield, Eye, EyeOff, ExternalLink } from 'lucide-react-native';
+import { Shield, Eye, EyeOff, ExternalLink, Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 export default function CredentialsScreen() {
   const { projectId } = useLocalSearchParams<{ projectId: string }>();
   const router = useRouter();
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
 
   const [appleId, setAppleId] = useState('');
   const [appPassword, setAppPassword] = useState('');
@@ -64,10 +68,11 @@ export default function CredentialsScreen() {
         completedAt: isComplete ? new Date().toISOString() : undefined,
       });
       console.log('[Credentials] Section saved, status:', isComplete ? 'complete' : 'in_progress');
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[Credentials] Save failed:', e);
-      Alert.alert('Save failed', 'Could not save credentials. Please try again.');
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -189,6 +194,28 @@ export default function CredentialsScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save credentials'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[Credentials] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'credentials', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'What is an app-specific password?',
+          'Where do I find my Team ID?',
+          'What is an API key used for?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -283,5 +310,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     color: '#fff',
+  },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
   },
 });

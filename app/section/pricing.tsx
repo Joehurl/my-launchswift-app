@@ -12,7 +12,9 @@ import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
-import { Check } from 'lucide-react-native';
+import { Check, Sparkles } from 'lucide-react-native';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 const PRICE_TIERS = ['$0.99', '$1.99', '$2.99', '$4.99', '$9.99', '$14.99', '$19.99', '$29.99', '$49.99', '$99.99'];
 const RELEASE_TYPES = [
@@ -27,6 +29,8 @@ export default function PricingScreen() {
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
 
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
   const [priceTier, setPriceTier] = useState<'free' | 'paid'>('free');
   const [selectedPrice, setSelectedPrice] = useState('$0.99');
   const [releaseType, setReleaseType] = useState('automatic');
@@ -53,9 +57,11 @@ export default function PricingScreen() {
         completedAt: new Date().toISOString(),
       });
       console.log('[Pricing] Saved successfully');
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[Pricing] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -180,6 +186,28 @@ export default function PricingScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save pricing'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[Pricing] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'pricing', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'Should my app be free or paid?',
+          'What price tier should I use?',
+          'How does freemium work?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -219,4 +247,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

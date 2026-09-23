@@ -8,10 +8,13 @@ import {
   Switch,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Sparkles } from 'lucide-react-native';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { Toast, useToast } from '@/components/Toast';
 
 type FrequencyLevel = 'None' | 'Infrequent' | 'Frequent';
 type BooleanLevel = 'No' | 'Yes';
@@ -61,6 +64,8 @@ export default function AgeRatingScreen() {
   const { getProject, updateSection } = useProjects();
   const project = getProject(projectId);
 
+  const { visible: toastVisible, message: toastMessage, type: toastType, showToast } = useToast();
+  const [aiChatVisible, setAIChatVisible] = useState(false);
   const [values, setValues] = useState<Record<string, string>>(() => {
     const defaults: Record<string, string> = {};
     CONTENT_DESCRIPTORS.forEach(d => {
@@ -98,9 +103,11 @@ export default function AgeRatingScreen() {
         data: { values, rating },
         completedAt: new Date().toISOString(),
       });
-      router.back();
+      showToast('✓ Saved');
+      setTimeout(() => router.back(), 400);
     } catch (e) {
       console.error('[AgeRating] Save failed:', e);
+      showToast('Save failed', 'error');
     } finally {
       setSaving(false);
     }
@@ -175,6 +182,28 @@ export default function AgeRatingScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save age rating'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[AgeRating] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'age-rating', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'What age rating should I choose?',
+          'What triggers a 17+ rating?',
+          'How is the rating calculated?',
+        ]}
+      />
+      <Toast visible={toastVisible} message={toastMessage} type={toastType} />
     </View>
   );
 }
@@ -237,4 +266,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });
