@@ -5,13 +5,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "BUN_CONFIG_FROZEN_LOCKFILE": "false"
+      }
     }
   },
   "submit": {
