@@ -3,17 +3,21 @@
     "name": "LaunchSwift",
     "slug": "launchswift",
     "version": "1.0.0",
+    "description": "LaunchSwift — The ultimate App Store submission assistant. AI-powered guidance for every step of getting your app approved.",
     "orientation": "portrait",
     "icon": "./assets/images/newly.png",
     "userInterfaceStyle": "automatic",
+    "jsEngine": "hermes",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/newly.png",
       "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "backgroundColor": "#0D1117"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.josephhurley.launchswift",
+      "buildNumber": "1",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -21,9 +25,10 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/newly.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#0D1117"
       },
-      "package": "com.josephhurley.launchswift"
+      "package": "com.josephhurley.launchswift",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/images/newly.png",

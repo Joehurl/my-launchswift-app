@@ -101,11 +101,12 @@ export default function ProjectsScreen() {
           <>
             <SkeletonCard />
             <SkeletonCard />
+            <SkeletonCard />
           </>
         ) : projects.length === 0 ? (
           <>
             <EmptyState onAdd={handleAddProject} />
-            <Text style={styles.copyright}>© 2025 Joseph Hurley. All rights reserved.</Text>
+            <Text style={styles.copyright}>© 2025 Joseph Hurley · LaunchSwift™</Text>
           </>
         ) : (
           <>

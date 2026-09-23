@@ -13,7 +13,8 @@ import { useProjects } from '@/contexts/ProjectContext';
 import { FormField } from '@/components/FormField';
 import { SectionHeader } from '@/components/SectionHeader';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
-import { ChevronDown } from 'lucide-react-native';
+import { AIChatSheet } from '@/components/AIChatSheet';
+import { ChevronDown, Sparkles } from 'lucide-react-native';
 
 const LANGUAGES = ['English (U.S.)', 'Spanish', 'French', 'German', 'Japanese', 'Chinese (Simplified)', 'Portuguese (Brazil)', 'Italian', 'Korean', 'Russian'];
 const CATEGORIES = ['Books', 'Business', 'Developer Tools', 'Education', 'Entertainment', 'Finance', 'Food & Drink', 'Games', 'Graphics & Design', 'Health & Fitness', 'Lifestyle', 'Medical', 'Music', 'Navigation', 'News', 'Photo & Video', 'Productivity', 'Reference', 'Shopping', 'Social Networking', 'Sports', 'Travel', 'Utilities', 'Weather'];
@@ -93,6 +94,7 @@ export default function AppInfoScreen() {
   const [category, setCategory] = useState('');
   const [secondaryCategory, setSecondaryCategory] = useState('');
   const [saving, setSaving] = useState(false);
+  const [aiChatVisible, setAIChatVisible] = useState(false);
 
   useEffect(() => {
     const d = project?.sections.appInfo.data;
@@ -211,6 +213,28 @@ export default function AppInfoScreen() {
           <Text style={styles.saveButtonText}>{saving ? 'Saving...' : 'Save app information'}</Text>
         </AnimatedPressable>
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[AppInfo] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'app-info', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'What should my app subtitle say?',
+          'How do I find my bundle ID?',
+          'Which category should I choose?',
+          'What is a SKU?',
+        ]}
+      />
     </View>
   );
 }
@@ -222,4 +246,20 @@ const styles = StyleSheet.create({
   saveButton: { margin: 20, backgroundColor: COLORS.primary, borderRadius: 14, paddingVertical: 16, alignItems: 'center' },
   saveButtonDisabled: { opacity: 0.5 },
   saveButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });

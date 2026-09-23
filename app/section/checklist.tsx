@@ -48,6 +48,7 @@ export default function ChecklistScreen() {
 
   const [showIssues, setShowIssues] = useState(true);
   const [showTips, setShowTips] = useState(false);
+  const [aiChatVisible, setAIChatVisible] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function ChecklistScreen() {
     console.log('[Checklist] Submit to App Store button pressed for project:', project.id);
     Alert.alert(
       'Submit to App Store',
-      'In a full implementation, this would connect to the App Store Connect API and initiate the submission process for your app.',
+      "To submit to the App Store, run 'eas build --platform ios --profile production' then 'eas submit --platform ios' from your terminal. Your bundle ID is com.josephhurley.launchswift",
       [{ text: 'Got it', style: 'default' }]
     );
   };
@@ -222,6 +223,28 @@ export default function ChecklistScreen() {
           <Text style={styles.submitHint}>Complete all required sections to enable submission</Text>
         )}
       </ScrollView>
+
+      <AnimatedPressable
+        onPress={() => {
+          console.log('[Checklist] AI Chat button pressed');
+          setAIChatVisible(true);
+        }}
+        style={styles.aiFloatingButton}
+      >
+        <Sparkles size={22} color="#fff" strokeWidth={2} />
+      </AnimatedPressable>
+
+      <AIChatSheet
+        visible={aiChatVisible}
+        onClose={() => setAIChatVisible(false)}
+        context={{ section: 'checklist', projectName: project?.name ?? 'Your App' }}
+        suggestedQuestions={[
+          'What do I need before submitting?',
+          'How long does App Store review take?',
+          'What are the most common rejection reasons?',
+          'How do I run eas build?',
+        ]}
+      />
     </View>
   );
 }
@@ -316,4 +339,20 @@ const styles = StyleSheet.create({
   submitButtonDisabled: { opacity: 0.4 },
   submitButtonText: { fontSize: 16, fontWeight: '700', color: '#fff' },
   submitHint: { fontSize: 13, color: COLORS.textTertiary, textAlign: 'center', marginTop: 8, marginHorizontal: 20 },
+  aiFloatingButton: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 8,
+  },
 });
