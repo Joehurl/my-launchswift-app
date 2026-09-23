@@ -87,5 +87,6 @@
   "resolutions": {
     "@expo/prebuild-config": "latest"
   },
-  "private": true
+  "private": true,
+  "packageManager": "npm@10.9.2"
 }
