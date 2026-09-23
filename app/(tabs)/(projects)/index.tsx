@@ -9,13 +9,14 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Plus, Rocket, Zap } from 'lucide-react-native';
+import { Plus, Zap } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS } from '@/constants/Colors';
 import { useProjects } from '@/contexts/ProjectContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { ProjectCard } from '@/components/ProjectCard';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import { LaunchSwiftIcon } from '@/components/LaunchSwiftIcon';
 
 const FREE_PROJECT_LIMIT = 1;
 
@@ -57,7 +58,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <Animated.View style={[styles.emptyState, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
       <View style={styles.emptyIconContainer}>
-        <Rocket size={32} color={COLORS.primary} strokeWidth={1.5} />
+        <LaunchSwiftIcon size={72} />
       </View>
       <Text style={styles.emptyTitle}>No projects yet</Text>
       <Text style={styles.emptySubtitle}>Add your first app to start tracking your App Store submission</Text>
@@ -113,9 +114,12 @@ export default function ProjectsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.headerRow}>
-        <View>
-          <Text style={styles.headerTitle}>LaunchSwift</Text>
-          <Text style={styles.headerSubtitle}>App Store submission assistant</Text>
+        <View style={styles.headerBrand}>
+          <LaunchSwiftIcon size={40} />
+          <View>
+            <Text style={styles.headerTitle}>LaunchSwift</Text>
+            <Text style={styles.headerSubtitle}>App Store submission assistant</Text>
+          </View>
         </View>
         <View style={styles.headerActions}>
           {showGoPro && (
@@ -198,6 +202,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 8,
+  },
+  headerBrand: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   headerTitle: {
     fontSize: 28,
@@ -309,8 +318,6 @@ const styles = StyleSheet.create({
   emptyIconContainer: {
     width: 72,
     height: 72,
-    borderRadius: 20,
-    backgroundColor: COLORS.primaryMuted,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,

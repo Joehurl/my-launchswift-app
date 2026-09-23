@@ -181,7 +181,7 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
         await Purchases.configure({ apiKey });
 
         // Listen for real-time subscription changes (e.g., purchase from another device)
-        customerInfoListener = Purchases.addCustomerInfoUpdateListener(
+        const _listener = Purchases.addCustomerInfoUpdateListener(
           (customerInfo) => {
             const hasEntitlement =
               typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !==
@@ -193,6 +193,9 @@ export function SubscriptionProvider({ children }: SubscriptionProviderProps) {
             }
           }
         );
+        customerInfoListener = typeof _listener === "function"
+          ? { remove: _listener as () => void }
+          : (_listener as unknown as { remove: () => void });
 
         // Fetch available products/packages
         await fetchOfferings();

@@ -204,6 +204,13 @@ export default function AboutScreen() {
           </View>
           <Text style={styles.appName}>LaunchSwift</Text>
           <Text style={styles.version}>Version 1.0.0</Text>
+          {__DEV__ && (
+            <View style={styles.devNotice}>
+              <Text style={styles.devNoticeText}>
+                Replace assets/images/newly.png with your LaunchSwift icon before submitting to the App Store.
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* About */}
@@ -300,6 +307,22 @@ const styles = StyleSheet.create({
   version: {
     fontSize: 14,
     color: COLORS.textSecondary,
+  },
+  devNotice: {
+    marginTop: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: COLORS.warningMuted,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.warning + '40',
+    maxWidth: 300,
+  },
+  devNoticeText: {
+    fontSize: 12,
+    color: COLORS.warning,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   section: {
     gap: 10,
