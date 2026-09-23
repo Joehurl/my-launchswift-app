@@ -1,0 +1,18 @@
+import { Stack } from 'expo-router';
+import { COLORS } from '@/constants/Colors';
+
+export default function ProjectsLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: COLORS.background },
+        headerTintColor: COLORS.primary,
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+        contentStyle: { backgroundColor: COLORS.background },
+      }}
+    >
+      <Stack.Screen name="index" options={{ title: 'LaunchSwift', headerLargeTitle: true }} />
+    </Stack>
+  );
+}
